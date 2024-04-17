@@ -1,0 +1,16 @@
+[Unit]
+Description=Mangle and Forward Profinet
+
+[Service]
+ExecStartPre=/bin/systemctl is-active sys-subsystem-net-devices-br0.device
+ExecStartPre=@SBINDIR@/ip link set dev wlp1s0 xdp off
+ExecStartPre=@SBINDIR@/ip link set dev br0 xdp off
+ExecStartPre=@SBINDIR@/ip link set br0 promisc on
+ExecStart=@BINDIR@/profinet-forwarder wlp1s0 br0
+Restart=always
+RestartSec=3
+ExecStopPost=@SBINDIR@/ip link set dev wlp1s0 xdp off
+ExecStopPost=@SBINDIR@/ip link set dev br0 xdp off
+
+[Install]
+WantedBy=multi-user.target

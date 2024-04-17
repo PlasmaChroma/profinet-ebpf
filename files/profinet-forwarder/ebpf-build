@@ -1,0 +1,16 @@
+#! /bin/bash
+set -euf -o pipefail
+
+if ! [ $# -eq 2 ]; then
+	>&2 echo "Usage: $0 <src-file> <out-file>"
+	exit 1
+fi
+
+clang \
+    --target=bpf \
+    -D_FORTIFY_SOURCE=2 \
+    -fno-stack-protector \
+    -S -emit-llvm -O2 \
+    ${BPF_CFLAGS:-} \
+    -c "$1" -o - | \
+llc -march=bpf -filetype=obj -o "$2"
